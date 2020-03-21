@@ -47,8 +47,10 @@ void createName()
 }
 
 // List of Service and Characteristic UUIDs
-#define SERVICE_UUID "0000aaaa-ead2-11e7-80c1-9a214cf093ae"
-#define WIFI_UUID "00005555-ead2-11e7-80c1-9a214cf093ae"
+// #define SERVICE_UUID "0000aaaa-ead2-11e7-80c1-9a214cf093ae"
+// #define WIFI_UUID "00005555-ead2-11e7-80c1-9a214cf093ae"
+#define SERVICE_UUID "0000AAAA-EAD2-11E7-80C1-9A214CF093AE"
+#define WIFI_UUID "00005555-EAD2-11E7-80C1-9A214CF093AE"
 
 /** SSIDs of local WiFi networks */
 String ssidPrim;
@@ -222,6 +224,8 @@ void initBLE()
 	BLEDevice::init(apName);
 	BLEDevice::setPower(ESP_PWR_LVL_P7);
 
+	Serial.printf("BLE advertising using %s\n", apName);
+
 	// Create BLE Server
 	pServer = BLEDevice::createServer();
 
@@ -229,12 +233,13 @@ void initBLE()
 	pServer->setCallbacks(new MyServerCallbacks());
 
 	// Create BLE Service
-	pService = pServer->createService(BLEUUID(SERVICE_UUID), 20);
+	// pService = pServer->createService(BLEUUID(SERVICE_UUID), 20);
+	pService = pServer->createService(SERVICE_UUID);
 
 	// Create BLE Characteristic for WiFi settings
 	pCharacteristicWiFi = pService->createCharacteristic(
-		BLEUUID(WIFI_UUID),
-		// WIFI_UUID,
+		// BLEUUID(WIFI_UUID),
+		WIFI_UUID,
 		PROPERTY_READ |
 			PROPERTY_WRITE);
 	pCharacteristicWiFi->setCallbacks(new MyCallbackHandler());
@@ -244,6 +249,7 @@ void initBLE()
 
 	// Start advertising
 	pAdvertising = pServer->getAdvertising();
+	pAdvertising->addServiceUUID(WIFI_UUID);
 	pAdvertising->start();
 }
 
